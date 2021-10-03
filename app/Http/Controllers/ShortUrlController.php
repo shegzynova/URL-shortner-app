@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Validator;
 class ShortUrlController extends Controller
 {
     
+    function generateRandomString($length = 6) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 
     public function encode(Request $request)
     {
@@ -41,14 +50,37 @@ class ShortUrlController extends Controller
 
 
 
-    function generateRandomString($length = 6) {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
+    public function decode(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'url' => 'required',
+        ]);
+
+
+        $errors = $validator->errors();
+        if ($validator->fails() && ($errors->first() != "")) {
+            return response()->json($errors);
+            // return back()->withInput();
         }
-        return $randomString;
+            $encode = EncodeUrl::where('short_url', $request->url)->first();
+
+            if($encode){
+                $encode->update([
+                    'visits' => $encode->visits + 1
+                ]);
+
+                return response()->json([
+                    'url' =>  $encode->original_url,
+                ]);
+            }
+
+            return response()->json([
+                'error' => 'Url not found in our database',
+            ]);
+
+
     }
+
 
 }
