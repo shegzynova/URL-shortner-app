@@ -18,3 +18,5 @@ use Illuminate\Support\Facades\Route;
 Route::post('/encode', [ShortUrlController::class, 'encode']);
 
 Route::post('/decode', [ShortUrlController::class, 'decode']);
+
+Route::get('/statistic/{url_path}', [ShortUrlController::class, 'stat']);

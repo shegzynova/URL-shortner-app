@@ -83,4 +83,33 @@ class ShortUrlController extends Controller
     }
 
 
+    public function stat($url_path)
+    {
+
+
+            if($url_path){
+                $stat = EncodeUrl::where('short_url', $url_path)->first();
+
+                if($stat){
+                    return response()->json([
+                        'original_url' =>  $stat->original_url,
+                        'short_url' =>  $stat->short_url,
+                        'visits' =>  $stat->visits,
+                    ]);
+                }
+
+                return response()->json([
+                    'error' => 'Url not found in our database',
+                ]);
+
+            }
+
+            return response()->json([
+                'error' => 'Please enter short url path',
+            ]);
+
+
+    }
+
+
 }
